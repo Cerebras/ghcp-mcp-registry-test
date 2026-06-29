@@ -8,19 +8,23 @@
 # What it produces (relative to registry/):
 #   v0.1/servers         -- spec endpoint /v0.1/servers (extensionless; aggregated list)
 #   v0.1/servers.json    -- same content with .json suffix for explicit-extension consumers
-#   detail/<name-with-real-slashes>/<version>.json
+#   detail/<flat-name>/<version>.json
 #                        -- per-version detail blobs (non-spec namespace; static-friendly)
-#   detail/<name-with-real-slashes>/latest.json
+#   detail/<flat-name>/latest.json
 #                        -- latest version detail
 #
-# Static-hosting notes:
-#   1. GitHub Pages can't expose both `/v0.1/servers` (file) AND `/v0.1/servers/<name>/...`
-#      (subtree under the same path), so per-server-version detail is published under a
-#      parallel `detail/` prefix. The primary `/v0.1/servers` listing is the spec-conformant
-#      discovery surface; clients can dereference each entry from `detail/` if needed.
-#   2. Server names contain `/` (e.g. `com.atlassian/atlassian-mcp-server`). HTTP clients
-#      normalize `%2F` to `/`, so URL-encoding the slash doesn't survive a round-trip
-#      through CDNs. We expose the slash as a real path separator under `detail/`.
+# Naming:
+#   Upstream MCP server names use a `<reverse-dns>/<short>` convention with a literal `/`
+#   in the identifier (e.g. `com.atlassian/atlassian-mcp-server`). This registry flattens
+#   that slash into a `.` for everything we publish, so the published name and on-disk
+#   layout are single path segments (e.g. `com.atlassian.atlassian-mcp-server`). The
+#   allowlist still uses the upstream canonical name as the lookup key.
+#
+# Static-hosting note:
+#   GitHub Pages can't expose both `/v0.1/servers` (file) AND `/v0.1/servers/<name>/...`
+#   (subtree) at the same path, so per-server detail lives under a parallel `detail/`
+#   prefix. The `/v0.1/servers` listing already contains the full server record, so
+#   most consumers won't need to dereference detail blobs.
 set -euo pipefail
 
 UPSTREAM="${UPSTREAM:-https://registry.modelcontextprotocol.io}"
@@ -36,25 +40,27 @@ rm -rf "$OUT_V01" "$OUT_DETAIL"
 mkdir -p "$OUT_V01" "$OUT_DETAIL"
 
 urlencode() { jq -rn --arg v "$1" '$v|@uri'; }
+flatten()   { printf '%s' "${1//\//.}"; }
 
 servers_array="[]"
 count=0
 
 while IFS=$'\t' read -r name version; do
   enc="$(urlencode "$name")"
-  # Use the server name's real slashes as filesystem path separators so URLs
-  # survive CDN normalization. e.g. com.atlassian/atlassian-mcp-server -> detail/com.atlassian/atlassian-mcp-server/
-  detail_dir="$OUT_DETAIL/$name"
+  flat="$(flatten "$name")"
+  detail_dir="$OUT_DETAIL/$flat"
   mkdir -p "$detail_dir"
 
   # Resolve the version this allowlist entry pins to
   if [ "$version" = "latest" ] || [ -z "$version" ]; then
-    selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/latest")"
+    raw="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/latest")"
   else
-    selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/$(urlencode "$version")")"
+    raw="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/$(urlencode "$version")")"
   fi
 
-  # Write per-version detail blob and `latest.json` alias
+  # Flatten the published server name (replace "/" with ".")
+  selected="$(jq -c --arg flat "$flat" '.server.name = $flat' <<<"$raw")"
+
   v="$(jq -r '.server.version' <<<"$selected")"
   printf '%s\n' "$selected" > "$detail_dir/$v.json"
   printf '%s\n' "$selected" > "$detail_dir/latest.json"

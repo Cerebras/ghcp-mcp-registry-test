@@ -3,7 +3,7 @@
     {
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-        "name": "com.atlassian/atlassian-mcp-server",
+        "name": "com.atlassian.atlassian-mcp-server",
         "description": "Connect to Atlassian Jira, Confluence, and Compass to search, create, and manage your work.",
         "title": "Atlassian Rovo MCP Server",
         "repository": {
@@ -43,7 +43,7 @@
     "nextCursor": null,
     "_curated": {
       "by": "Cerebras corpsec",
-      "generatedAt": "2026-06-29T15:16:27Z",
+      "generatedAt": "2026-06-29T18:44:13Z",
       "upstream": "https://registry.modelcontextprotocol.io"
     }
   }

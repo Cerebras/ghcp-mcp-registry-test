@@ -38,9 +38,9 @@
             (<a href="https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/generic-registry-api.md">Generic Registry API</a>).</td></tr>
     <tr><td><code><a href="v0.1/servers.json">v0.1/servers.json</a></code></td>
         <td>Same listing, served with an explicit <code>.json</code> extension.</td></tr>
-    <tr><td><code>detail/&lt;name&gt;/&lt;version&gt;.json</code></td>
-        <td>Per-version detail blobs. The server name's slash is kept as a real path separator (e.g.
-            <code><a href="detail/com.atlassian/atlassian-mcp-server/latest.json">detail/com.atlassian/atlassian-mcp-server/latest.json</a></code>).</td></tr>
+    <tr><td><code>detail/&lt;flat-name&gt;/&lt;version&gt;.json</code></td>
+        <td>Per-version detail blobs. Server names are flattened (slash → dot), e.g.
+            <code><a href="detail/com.atlassian.atlassian-mcp-server/latest.json">detail/com.atlassian.atlassian-mcp-server/latest.json</a></code>.</td></tr>
   </table>
 
   <h2>Allowlisted servers</h2>
