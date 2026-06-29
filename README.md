@@ -1,1 +1,1 @@
-# corpsec
+# GHCP MCP Registry Test
