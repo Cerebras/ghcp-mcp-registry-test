@@ -1,11 +1,11 @@
-# ghcp-mcp-registry
+# registry
 
 A statically-hosted, allowlist-based mirror of the [official MCP registry](https://registry.modelcontextprotocol.io), curated for Cerebras and served from this repo's GitHub Pages branch.
 
 Once GitHub Pages is enabled on the `pages` branch, the registry is reachable at:
 
 ```
-https://cerebras.github.io/corpsec/ghcp-mcp-registry/
+https://cerebras.github.io/ghcp-mcp-registry/registry/
 ```
 
 ## Layout
@@ -35,11 +35,11 @@ The spec further URL-encodes the slash inside a server name (e.g. `com.example%2
 1. Edit `allowlist.json` — add or remove server entries. `version` can be `"latest"` or a pinned semver.
 2. Run the build:
    ```bash
-   ./ghcp-mcp-registry/scripts/build.sh
+   ./registry/scripts/build.sh
    ```
 3. Commit and push to `pages`:
    ```bash
-   git add ghcp-mcp-registry
+   git add registry
    git commit -m "registry: refresh"
    git push origin pages
    ```

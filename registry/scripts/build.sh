@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Regenerate the static MCP-registry endpoints under ghcp-mcp-registry/v0.1/
+# Regenerate the static MCP-registry endpoints under registry/v0.1/
 # from the upstream official MCP registry, filtered by allowlist.json.
 #
 # Usage:
-#   ./ghcp-mcp-registry/scripts/build.sh
+#   ./registry/scripts/build.sh
 #
-# What it produces (relative to ghcp-mcp-registry/):
+# What it produces (relative to registry/):
 #   v0.1/servers         -- spec endpoint /v0.1/servers (extensionless; aggregated list)
 #   v0.1/servers.json    -- same content with .json suffix for explicit-extension consumers
 #   detail/<name-with-real-slashes>/<version>.json
