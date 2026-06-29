@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cerebras GHCP MCP Registry</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+           max-width: 56rem; margin: 2.5rem auto; padding: 0 1.25rem; line-height: 1.55; }
+    h1 { margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre { background: #f5f5f7; padding: 0.9rem 1rem; border-radius: 8px; overflow-x: auto; }
+    @media (prefers-color-scheme: dark) {
+      pre { background: #1c1c1f; }
+      .subtitle { color: #aaa; }
+    }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #ddd; vertical-align: top; }
+    @media (prefers-color-scheme: dark) { th, td { border-bottom-color: #333; } }
+    .pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+            background: #eef; color: #224; font-size: 0.8rem; }
+    @media (prefers-color-scheme: dark) { .pill { background: #224; color: #cce; } }
+  </style>
+</head>
+<body>
+  <h1>Cerebras GHCP MCP Registry</h1>
+  <p class="subtitle">A curated, allowlist-based mirror of the
+    <a href="https://registry.modelcontextprotocol.io">official MCP registry</a>,
+    exposing only servers approved for use inside Cerebras.</p>
+
+  <h2>Endpoints</h2>
+  <table>
+    <tr><th>Path</th><th>Description</th></tr>
+    <tr><td><code><a href="v0.1/servers">v0.1/servers</a></code></td>
+        <td>Spec-conformant aggregated server listing
+            (<a href="https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/generic-registry-api.md">Generic Registry API</a>).</td></tr>
+    <tr><td><code><a href="v0.1/servers.json">v0.1/servers.json</a></code></td>
+        <td>Same listing, served with an explicit <code>.json</code> extension.</td></tr>
+    <tr><td><code>detail/&lt;name&gt;/&lt;version&gt;.json</code></td>
+        <td>Per-version detail blobs. The server name's slash is kept as a real path separator (e.g.
+            <code><a href="detail/com.atlassian/atlassian-mcp-server/latest.json">detail/com.atlassian/atlassian-mcp-server/latest.json</a></code>).</td></tr>
+  </table>
+
+  <h2>Allowlisted servers</h2>
+  <table id="servers">
+    <tr><th>Name</th><th>Version</th><th>Transport</th><th>Notes</th></tr>
+  </table>
+
+  <h2>Updating the allowlist</h2>
+  <p>Edit <code>ghcp-mcp-registry/allowlist.json</code> and run:</p>
+  <pre><code>./ghcp-mcp-registry/scripts/build.sh
+git commit -am "registry: refresh"
+git push origin pages</code></pre>
+
+  <p class="subtitle">Source: <a href="https://github.com/Cerebras/corpsec/tree/pages/ghcp-mcp-registry">Cerebras/corpsec @ pages</a></p>
+
+  <script>
+    fetch('v0.1/servers.json').then(r => r.json()).then(d => {
+      const tbl = document.getElementById('servers');
+      for (const item of d.servers) {
+        const s = item.server;
+        const transports = []
+          .concat((s.packages || []).map(p => `pkg:${p.registryType}/${p.transport && p.transport.type}`))
+          .concat((s.remotes  || []).map(r => `remote:${r.type}`))
+          .join(', ');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><code>${s.name}</code></td><td>${s.version}</td><td>${transports}</td><td>${s.description || ''}</td>`;
+        tbl.appendChild(tr);
+      }
+    }).catch(e => console.error(e));
+  </script>
+</body>
+</html>

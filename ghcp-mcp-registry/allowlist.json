@@ -1,0 +1,10 @@
+{
+  "$comment": "Source of truth for which MCP servers this Cerebras-curated registry exposes. Edit this file and re-run scripts/build.sh to regenerate the v0.1 endpoints.",
+  "servers": [
+    {
+      "name": "com.atlassian/atlassian-mcp-server",
+      "version": "latest",
+      "notes": "Atlassian Rovo remote MCP server (Jira, Confluence, Compass)."
+    }
+  ]
+}
