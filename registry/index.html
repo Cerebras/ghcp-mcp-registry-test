@@ -33,14 +33,15 @@
   <h2>Endpoints</h2>
   <table>
     <tr><th>Path</th><th>Description</th></tr>
-    <tr><td><code><a href="v0.1/servers">v0.1/servers</a></code></td>
-        <td>Spec-conformant aggregated server listing
-            (<a href="https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/generic-registry-api.md">Generic Registry API</a>).</td></tr>
+    <tr><td><code><a href="v0.1/servers/">v0.1/servers</a></code></td>
+        <td>Aggregated server listing (GitHub Copilot MCP registry contract).</td></tr>
     <tr><td><code><a href="v0.1/servers.json">v0.1/servers.json</a></code></td>
-        <td>Same listing, served with an explicit <code>.json</code> extension.</td></tr>
-    <tr><td><code>detail/&lt;flat-name&gt;/&lt;version&gt;.json</code></td>
-        <td>Per-version detail blobs. Server names are flattened (slash → dot), e.g.
-            <code><a href="detail/com.atlassian.atlassian-mcp-server/latest.json">detail/com.atlassian.atlassian-mcp-server/latest.json</a></code>.</td></tr>
+        <td>Same listing, explicit <code>.json</code> extension and <code>application/json</code> MIME.</td></tr>
+    <tr><td><code>v0.1/servers/&lt;name&gt;/versions/latest</code></td>
+        <td>Latest version of a server (e.g.
+            <code><a href="v0.1/servers/com.atlassian/atlassian-mcp-server/versions/latest">v0.1/servers/com.atlassian/atlassian-mcp-server/versions/latest</a></code>).</td></tr>
+    <tr><td><code>v0.1/servers/&lt;name&gt;/versions/&lt;version&gt;</code></td>
+        <td>Specific version of a server.</td></tr>
   </table>
 
   <h2>Allowlisted servers</h2>
@@ -55,6 +56,12 @@ git commit -am "registry: refresh"
 git push origin pages</code></pre>
 
   <p class="subtitle">Source: <a href="https://github.com/Cerebras/ghcp-mcp-registry/tree/pages/registry">Cerebras/ghcp-mcp-registry @ pages</a></p>
+
+  <h2>Configure GitHub Copilot</h2>
+  <p>Set the MCP registry URL for your organization or enterprise to:</p>
+  <pre><code>https://cerebras.github.io/ghcp-mcp-registry/registry</code></pre>
+  <p>Copilot will fetch <code>/v0.1/servers</code> from there and match installed server IDs exactly. See the
+    <a href="https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry">GitHub docs</a>.</p>
 
   <script>
     fetch('v0.1/servers.json').then(r => r.json()).then(d => {

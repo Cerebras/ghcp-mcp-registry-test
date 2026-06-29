@@ -1,41 +1,50 @@
 # registry
 
-A statically-hosted, allowlist-based mirror of the [official MCP registry](https://registry.modelcontextprotocol.io), curated for Cerebras and served from this repo's GitHub Pages branch.
+A statically-hosted MCP server registry for Cerebras, conforming to the [GitHub Copilot MCP registry contract](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry) (v0.1).
 
-Once GitHub Pages is enabled on the `pages` branch, the registry is reachable at:
+Served from the `pages` branch at:
 
 ```
 https://cerebras.github.io/ghcp-mcp-registry/registry/
 ```
 
-## Layout
+Configure that base URL in your enterprise/organization Copilot MCP registry settings.
+
+## Endpoints
+
+These three endpoints are the contract GitHub Copilot enforces against:
+
+| Endpoint | Source file |
+| --- | --- |
+| `GET /v0.1/servers` | `v0.1/servers/index.html` (body is JSON; reached via GH Pages' trailing-slash redirect) |
+| `GET /v0.1/servers/{serverName}/versions/latest` | `v0.1/servers/<serverName>/versions/latest` |
+| `GET /v0.1/servers/{serverName}/versions/{version}` | `v0.1/servers/<serverName>/versions/<version>` |
+
+`serverName` keeps its canonical `/` (e.g. `com.atlassian/atlassian-mcp-server`). The slash becomes a real filesystem path separator, so the URL resolves whether the client sends the `/` literally or URL-encoded as `%2F` (CDNs normalize the latter to the former).
+
+A `v0.1/servers.json` sibling is also published with explicit `application/json` MIME, for tooling that doesn't follow the trailing-slash redirect.
+
+## Source layout
 
 | Path | Purpose |
 | --- | --- |
-| `allowlist.json` | Source of truth — which MCP servers are exposed (and at what pinned version). |
-| `scripts/build.sh` | Pulls each allowlisted server from the upstream registry and regenerates the static files below. |
-| `v0.1/servers` | Spec-conformant listing endpoint (no extension; matches `GET /v0.1/servers` from the Generic Registry API). |
-| `v0.1/servers.json` | Same content, `.json` extension, served as `application/json` by GitHub Pages. |
-| `detail/<flat-name>/<version>.json` | Per-version detail blobs (e.g. `detail/com.atlassian.atlassian-mcp-server/1.1.2.json`). |
-| `detail/<flat-name>/latest.json` | Latest-version alias. |
+| `allowlist.json` | Source of truth — which MCP servers are exposed and at what pinned version. Uses canonical server IDs (with `/`). |
+| `scripts/build.sh` | Pulls each allowlisted server from `registry.modelcontextprotocol.io` and regenerates the static endpoints. |
+| `v0.1/...` | Generated. Do not edit by hand. |
 | `index.html` | Human-readable landing page. |
 
-## Why both `v0.1/servers` (extensionless) and `v0.1/servers.json`?
+## CORS
 
-The MCP registry spec describes an HTTP API where path-without-extension is the canonical endpoint. GitHub Pages can serve extensionless files (so `/v0.1/servers` works), but the MIME type isn't guaranteed to be `application/json`. The `.json` sibling exists for tooling that requires a strict content type.
+GitHub Pages already sends `Access-Control-Allow-Origin: *` on every response, which is enough for Copilot's simple `GET` fetches. If Copilot ever sends a preflighted request (custom headers like `Authorization`), GH Pages won't add `Access-Control-Allow-Methods` / `Access-Control-Allow-Headers`, and you'd need to front the site with a proxy (e.g. a Cloudflare Worker) that injects them.
 
-## Why is per-server detail under `detail/`, not `v0.1/servers/<name>/...`?
+## Why the server ID must match exactly
 
-The spec puts the listing at `/v0.1/servers` and per-server detail at `/v0.1/servers/<name>/versions/<version>`. On a static filesystem you can't have both a file and a directory at the same path (`v0.1/servers`), so we publish the detail blobs under a parallel `detail/` prefix. Listing consumers don't need to walk these — every entry in `v0.1/servers.json` already contains the full server record.
-
-## Why is the server name "flattened" (no `/`)?
-
-Upstream MCP server names use a `<reverse-dns>/<short>` convention with a literal `/` in the identifier. We replace that slash with `.` before publishing — both in the listed `server.name` and in the on-disk `detail/` layout — so every identifier is a single path segment. The `allowlist.json` source still references the upstream canonical name (with `/`) as the lookup key.
+GitHub Copilot's MCP allowlist enforcement is name-based — see [MCP allowlist enforcement](https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement). When a user tries to use an MCP server, Copilot compares the installed server's canonical ID against the IDs in your registry; **non-matching IDs are denied.** Don't rewrite the names — keep them exactly as the upstream/manifest defines them (e.g. `com.atlassian/atlassian-mcp-server`, not `com.atlassian.atlassian-mcp-server`).
 
 ## Updating
 
-1. Edit `allowlist.json` — add or remove server entries. `version` can be `"latest"` or a pinned semver.
-2. Run the build:
+1. Edit `allowlist.json` — add or remove entries. Use the canonical upstream name (with `/`). `version` can be `"latest"` or a pinned semver.
+2. Rebuild:
    ```bash
    ./registry/scripts/build.sh
    ```
@@ -46,15 +55,13 @@ Upstream MCP server names use a `<reverse-dns>/<short>` convention with a litera
    git push origin pages
    ```
 
-## Adding a new server
-
-The upstream registry indexes servers by reverse-DNS name (with `/`). To find one:
+## Finding a server's canonical ID
 
 ```bash
 curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=<term>" | jq '.servers[].server.name'
 ```
 
-Then add an entry to `allowlist.json` using the upstream canonical name:
+Add it to `allowlist.json` exactly as returned:
 
 ```json
 {
@@ -64,10 +71,10 @@ Then add an entry to `allowlist.json` using the upstream canonical name:
 }
 ```
 
-The build will publish it as `com.example.foo-mcp` (slash flattened to `.`).
-
 ## References
 
+- [Configure an MCP registry for your organization or enterprise](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry)
+- [Configure MCP server access](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-server-access)
+- [MCP allowlist enforcement](https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement)
 - [Generic Registry API spec](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/generic-registry-api.md)
-- [Generic server.json format](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/generic-server-json.md)
-- [Official MCP registry](https://registry.modelcontextprotocol.io/docs)
+- [server.json format](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/generic-server-json.md)
