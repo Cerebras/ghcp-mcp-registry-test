@@ -24,6 +24,17 @@
 #     canonical ID Copilot enforces against. The name's `/` becomes a real
 #     filesystem path separator so paths resolve whether the client sends `/`
 #     or URL-encoded `%2F` (CDNs typically normalize the latter to the former).
+#
+# A server may be allowlisted at several versions at once, via a `versions`
+# array (`"versions": ["latest", "1.1.2"]`). Each one is fetched and published
+# at its own path, and all of them appear in the listing — which is what the
+# upstream registry does too, so `isLatest` in each blob stays accurate without
+# us rewriting anything. The legacy single `"version": "..."` form still works.
+#
+# Only the entry requested as "latest" writes the `latest` alias; pinned
+# versions never claim it. Listing entries are deduplicated by resolved
+# version, so naming both "latest" and the semver it currently resolves to
+# publishes one copy rather than two.
 set -euo pipefail
 
 UPSTREAM="${UPSTREAM:-https://registry.modelcontextprotocol.io}"
@@ -41,27 +52,52 @@ urlencode() { jq -rn --arg v "$1" '$v|@uri'; }
 
 servers_array="[]"
 count=0
+published=""     # |name@resolved-version| already in the listing
+has_latest=""    # |name| that published a latest alias
 
-while IFS=$'\t' read -r name version; do
+while IFS=$'\t' read -r name spec; do
   enc="$(urlencode "$name")"
   versions_dir="$OUT_V01/servers/$name/versions"
   mkdir -p "$versions_dir"
 
-  if [ "$version" = "latest" ] || [ -z "$version" ]; then
+  if [ "$spec" = "latest" ] || [ -z "$spec" ]; then
     selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/latest")"
   else
-    selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/$(urlencode "$version")")"
+    selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/$(urlencode "$spec")")"
   fi
 
   v="$(jq -r '.server.version' <<<"$selected")"
   printf '%s\n' "$selected" > "$versions_dir/$v"
   printf '%s\n' "$selected" > "$versions_dir/$v.json"
-  printf '%s\n' "$selected" > "$versions_dir/latest"
-  printf '%s\n' "$selected" > "$versions_dir/latest.json"
+
+  if [ "$spec" = "latest" ] || [ -z "$spec" ]; then
+    printf '%s\n' "$selected" > "$versions_dir/latest"
+    printf '%s\n' "$selected" > "$versions_dir/latest.json"
+    has_latest="$has_latest|$name|"
+  fi
+
+  case "$published" in
+    *"|$name@$v|"*) continue ;;
+  esac
+  published="$published|$name@$v|"
 
   servers_array="$(jq -c --argjson e "$selected" '. + [$e]' <<<"$servers_array")"
   count=$((count + 1))
-done < <(jq -r '.servers[] | [.name, (.version // "latest")] | @tsv' "$ALLOWLIST")
+done < <(jq -r '
+  .servers[]
+  | . as $s
+  | ($s.versions // [$s.version // "latest"])[]
+  | [$s.name, .] | @tsv
+' "$ALLOWLIST")
+
+# A server pinned only to explicit versions has no /versions/latest, which
+# Copilot will fetch and 404 on. Flag it rather than shipping a hole.
+while IFS= read -r n; do
+  case "$has_latest" in
+    *"|$n|"*) ;;
+    *) echo "warning: $n has no \"latest\" in its versions — /versions/latest will 404" >&2 ;;
+  esac
+done < <(jq -r '.servers[].name' "$ALLOWLIST" | sort -u)
 
 generated_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 listing="$(jq -n \

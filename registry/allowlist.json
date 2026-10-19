@@ -3,8 +3,8 @@
   "servers": [
     {
       "name": "com.atlassian/atlassian-mcp-server",
-      "version": "latest",
-      "notes": "Atlassian Rovo remote MCP server (Jira, Confluence, Compass)."
+      "versions": ["latest", "1.1.2"],
+      "notes": "Atlassian Rovo remote MCP server (Jira, Confluence, Loom). `latest` is 2.0.0, whose default remote is https://mcp.atlassian.com/v2/mcp. 1.1.2 stays pinned so the v1 remotes remain resolvable through the v1→v2 transition; Atlassian begins serving v2 tools to v1 connections on 2027-03-01."
     }
   ]
 }
