@@ -5,7 +5,7 @@ A statically-hosted MCP server registry for Cerebras, conforming to the [GitHub 
 Served from the `pages` branch at:
 
 ```
-https://cerebras.github.io/ghcp-mcp-registry/registry/
+https://cerebras.github.io/ghcp-mcp-registry-test/registry/
 ```
 
 Configure that base URL in your enterprise/organization Copilot MCP registry settings.
@@ -28,7 +28,7 @@ A `v0.1/servers.json` sibling is also published with explicit `application/json`
 
 | Path | Purpose |
 | --- | --- |
-| `allowlist.json` | Source of truth — which MCP servers are exposed and at what pinned version. Uses canonical server IDs (with `/`). |
+| `allowlist.json` | Source of truth — which MCP servers are exposed and at what versions. Uses canonical server IDs (with `/`). |
 | `scripts/build.sh` | Pulls each allowlisted server from `registry.modelcontextprotocol.io` and regenerates the static endpoints. |
 | `v0.1/...` | Generated. Do not edit by hand. |
 | `index.html` | Human-readable landing page. |
@@ -43,7 +43,7 @@ GitHub Copilot's MCP allowlist enforcement is name-based — see [MCP allowlist 
 
 ## Updating
 
-1. Edit `allowlist.json` — add or remove entries. Use the canonical upstream name (with `/`). `version` can be `"latest"` or a pinned semver.
+1. Edit `allowlist.json` — add or remove entries. Use the canonical upstream name (with `/`). `versions` is an array; each element is `"latest"` or a pinned semver. A bare `"version": "..."` string is still accepted.
 2. Rebuild:
    ```bash
    ./registry/scripts/build.sh
@@ -54,6 +54,26 @@ GitHub Copilot's MCP allowlist enforcement is name-based — see [MCP allowlist 
    git commit -m "registry: refresh"
    git push origin pages
    ```
+
+## Publishing several versions of one server
+
+List more than one version to keep an older release resolvable while a newer one is the default:
+
+```json
+{
+  "name": "com.atlassian/atlassian-mcp-server",
+  "versions": ["latest", "1.1.2"]
+}
+```
+
+Every listed version is fetched and published at its own `/versions/<semver>` path, and all of them appear in `/v0.1/servers`. That matches how the upstream registry presents a server's history, so the `isLatest` flag inside each blob stays accurate and nothing has to be rewritten by hand.
+
+Two rules the build enforces:
+
+- Only the entry requested as `"latest"` writes the `/versions/latest` alias — a pinned version never claims it. If a server is pinned without `"latest"`, the build warns, because Copilot will fetch that path and 404.
+- Listing entries are deduplicated by *resolved* version, so naming both `"latest"` and the semver it currently resolves to publishes one copy, not two.
+
+Keep in mind that Copilot's allowlist enforcement is name-based, not version-based (see below) — publishing several versions controls what the registry offers, not which version an already-installed client is allowed to use.
 
 ## Finding a server's canonical ID
 
@@ -66,7 +86,7 @@ Add it to `allowlist.json` exactly as returned:
 ```json
 {
   "name": "com.example/foo-mcp",
-  "version": "latest",
+  "versions": ["latest"],
   "notes": "Optional rationale for allowing this server."
 }
 ```
