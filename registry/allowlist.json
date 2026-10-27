@@ -1,5 +1,5 @@
 {
-  "$comment": "Source of truth for which MCP servers this Cerebras-curated registry exposes. Edit this file and re-run scripts/build.sh to regenerate the v0.1 endpoints. Entries default to source \"upstream\" (fetched from registry.modelcontextprotocol.io); set \"source\": \"local\" to publish a hand-authored blob from local/<name>/<version>.json instead. NOTE: local/ also holds validated-but-unpublished blobs for the four Cerebras-built Microsoft servers (Outlook mail, Outlook calendar, SharePoint, Teams). They are deliberately absent from this list until the Slack entry proves the two untested assumptions — see \"Servers with no upstream entry\" in README.md. Publishing them is a matter of adding four entries here and rebuilding.",
+  "$comment": "Source of truth for which MCP servers this registry exposes. Edit, then re-run scripts/build.sh. Entries default to source \"upstream\"; \"local\" publishes a blob from local/<name>/<version>.json instead. local/ also holds four staged Microsoft blobs not yet listed here — see README.md.",
   "servers": [
     {
       "name": "com.atlassian/atlassian-mcp-server",
@@ -10,7 +10,7 @@
       "name": "net.cerebras.sec/slack",
       "versions": ["latest"],
       "source": "local",
-      "notes": "Slack official remote MCP server, exposed via Runlayer proxy a4838591. Not in the upstream MCP registry (as of 2026-10-28 upstream carries only third-party Slack servers), so the blob is hand-authored. The remote points at the Runlayer proxy rather than https://mcp.slack.com/mcp so Copilot traffic stays inside Runlayer policy and audit. First local-source entry: it is the canary for whether Copilot accepts a non-official _meta namespace and can reach an internal-only host."
+      "notes": "Slack official remote MCP server via Runlayer proxy a4838591. Not in the upstream registry, so the blob is hand-authored. Remote points at the proxy, not mcp.slack.com, to keep Copilot under Runlayer policy and audit."
     }
   ]
 }

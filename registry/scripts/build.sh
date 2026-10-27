@@ -36,14 +36,9 @@
 # version, so naming both "latest" and the semver it currently resolves to
 # publishes one copy rather than two.
 #
-# An entry may instead set `"source": "local"`, in which case the blob is read
-# from `local/<name>/<version>.json` rather than fetched upstream. That covers
-# servers with no entry in registry.modelcontextprotocol.io — Cerebras-built
-# servers, and vendor servers the vendor has not published upstream. The file
-# is the same shape the upstream per-version endpoint returns ({server, _meta}),
-# and the published version still comes from `.server.version` inside it, so a
-# local `latest.json` carrying version 1.0.0 lands at both /versions/1.0.0 and
-# /versions/latest exactly as an upstream fetch would.
+# `"source": "local"` reads the blob from `local/<name>/<version>.json` instead
+# of fetching it, for servers with no upstream registry entry. Same shape, and
+# the version still comes from `.server.version` inside the blob.
 set -euo pipefail
 
 UPSTREAM="${UPSTREAM:-https://registry.modelcontextprotocol.io}"
@@ -74,9 +69,8 @@ while IFS=$'\t' read -r name spec source; do
     src="$LOCAL/$name/${spec:-latest}.json"
     [ -f "$src" ] || { echo "error: $name declares source \"local\" but $src is missing" >&2; exit 1; }
     selected="$(jq -c . "$src")"
-    # The blob is hand-maintained, so the name inside it can drift from the
-    # allowlist key that decides where it gets published. Copilot enforces on
-    # the name in the blob, so a mismatch silently publishes an unusable entry.
+    # Copilot enforces on the name inside the blob, so a drift from the
+    # allowlist key would publish an unusable entry.
     blob_name="$(jq -r '.server.name' <<<"$selected")"
     [ "$blob_name" = "$name" ] || { echo "error: $src declares server.name \"$blob_name\", expected \"$name\"" >&2; exit 1; }
   elif [ "$spec" = "latest" ] || [ -z "$spec" ]; then
