@@ -35,11 +35,16 @@
 # versions never claim it. Listing entries are deduplicated by resolved
 # version, so naming both "latest" and the semver it currently resolves to
 # publishes one copy rather than two.
+#
+# `"source": "local"` reads the blob from `local/<name>/<version>.json` instead
+# of fetching it, for servers with no upstream registry entry. Same shape, and
+# the version still comes from `.server.version` inside the blob.
 set -euo pipefail
 
 UPSTREAM="${UPSTREAM:-https://registry.modelcontextprotocol.io}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ALLOWLIST="$ROOT/allowlist.json"
+LOCAL="$ROOT/local"
 OUT_V01="$ROOT/v0.1"
 
 command -v jq   >/dev/null || { echo "jq is required"   >&2; exit 1; }
@@ -55,12 +60,20 @@ count=0
 published=""     # |name@resolved-version| already in the listing
 has_latest=""    # |name| that published a latest alias
 
-while IFS=$'\t' read -r name spec; do
+while IFS=$'\t' read -r name spec source; do
   enc="$(urlencode "$name")"
   versions_dir="$OUT_V01/servers/$name/versions"
   mkdir -p "$versions_dir"
 
-  if [ "$spec" = "latest" ] || [ -z "$spec" ]; then
+  if [ "$source" = "local" ]; then
+    src="$LOCAL/$name/${spec:-latest}.json"
+    [ -f "$src" ] || { echo "error: $name declares source \"local\" but $src is missing" >&2; exit 1; }
+    selected="$(jq -c . "$src")"
+    # Copilot enforces on the name inside the blob, so a drift from the
+    # allowlist key would publish an unusable entry.
+    blob_name="$(jq -r '.server.name' <<<"$selected")"
+    [ "$blob_name" = "$name" ] || { echo "error: $src declares server.name \"$blob_name\", expected \"$name\"" >&2; exit 1; }
+  elif [ "$spec" = "latest" ] || [ -z "$spec" ]; then
     selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/latest")"
   else
     selected="$(curl -fsSL "$UPSTREAM/v0.1/servers/$enc/versions/$(urlencode "$spec")")"
@@ -87,7 +100,7 @@ done < <(jq -r '
   .servers[]
   | . as $s
   | ($s.versions // [$s.version // "latest"])[]
-  | [$s.name, .] | @tsv
+  | [$s.name, ., ($s.source // "upstream")] | @tsv
 ' "$ALLOWLIST")
 
 # A server pinned only to explicit versions has no /versions/latest, which

@@ -1,10 +1,16 @@
 {
-  "$comment": "Source of truth for which MCP servers this Cerebras-curated registry exposes. Edit this file and re-run scripts/build.sh to regenerate the v0.1 endpoints.",
+  "$comment": "Source of truth for which MCP servers this registry exposes. Edit, then re-run scripts/build.sh. Entries default to source \"upstream\"; \"local\" publishes a blob from local/<name>/<version>.json instead. local/ also holds four staged Microsoft blobs not yet listed here — see README.md.",
   "servers": [
     {
       "name": "com.atlassian/atlassian-mcp-server",
       "versions": ["latest", "1.1.2"],
       "notes": "Atlassian Rovo remote MCP server (Jira, Confluence, Loom). `latest` is 2.0.0, whose default remote is https://mcp.atlassian.com/v2/mcp. 1.1.2 stays pinned so the v1 remotes remain resolvable through the v1→v2 transition; Atlassian begins serving v2 tools to v1 connections on 2027-03-01."
+    },
+    {
+      "name": "net.cerebras.sec/slack",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Slack official remote MCP server via Runlayer proxy a4838591. Not in the upstream registry, so the blob is hand-authored. Remote points at the proxy, not mcp.slack.com, to keep Copilot under Runlayer policy and audit."
     }
   ]
 }
