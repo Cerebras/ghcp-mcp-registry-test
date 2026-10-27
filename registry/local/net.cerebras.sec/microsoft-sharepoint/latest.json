@@ -1,0 +1,29 @@
+{
+  "server": {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+    "name": "net.cerebras.sec/microsoft-sharepoint",
+    "title": "Microsoft SharePoint (Runlayer)",
+    "description": "Browse SharePoint sites, files, and lists via the Cerebras Runlayer proxy.",
+    "version": "1.0.0",
+    "websiteUrl": "https://runlayer.sec.cerebras.net/",
+    "remotes": [
+      {
+        "type": "streamable-http",
+        "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/5305ba03-faa2-4db8-b0f7-05006c0a3db2/mcp"
+      }
+    ]
+  },
+  "_meta": {
+    "net.cerebras.registry/curated": {
+      "status": "active",
+      "statusChangedAt": "2026-10-28T00:00:00Z",
+      "publishedAt": "2026-10-28T00:00:00Z",
+      "updatedAt": "2026-10-28T00:00:00Z",
+      "isLatest": true,
+      "source": "runlayer",
+      "runlayerServerId": "5305ba03-faa2-4db8-b0f7-05006c0a3db2",
+      "runlayerServerName": "Microsoft SharePoint",
+      "isOfficialUpstream": false
+    }
+  }
+}

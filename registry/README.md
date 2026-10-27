@@ -29,7 +29,8 @@ A `v0.1/servers.json` sibling is also published with explicit `application/json`
 | Path | Purpose |
 | --- | --- |
 | `allowlist.json` | Source of truth — which MCP servers are exposed and at what versions. Uses canonical server IDs (with `/`). |
-| `scripts/build.sh` | Pulls each allowlisted server from `registry.modelcontextprotocol.io` and regenerates the static endpoints. |
+| `local/<name>/<version>.json` | Hand-authored blobs for servers that have no upstream registry entry. Only read for allowlist entries with `"source": "local"`. |
+| `scripts/build.sh` | Pulls each allowlisted server from `registry.modelcontextprotocol.io` (or `local/`) and regenerates the static endpoints. |
 | `v0.1/...` | Generated. Do not edit by hand. |
 | `index.html` | Human-readable landing page. |
 
@@ -74,6 +75,58 @@ Two rules the build enforces:
 - Listing entries are deduplicated by *resolved* version, so naming both `"latest"` and the semver it currently resolves to publishes one copy, not two.
 
 Keep in mind that Copilot's allowlist enforcement is name-based, not version-based (see below) — publishing several versions controls what the registry offers, not which version an already-installed client is allowed to use.
+
+## Servers with no upstream entry
+
+Most of what we expose through Runlayer isn't in `registry.modelcontextprotocol.io` — the Microsoft Outlook/SharePoint/Teams servers are Cerebras-built, and Slack hasn't published its official remote server upstream. `build.sh` can't fetch what isn't there, so those entries set `"source": "local"`:
+
+```json
+{
+  "name": "net.cerebras.sec/microsoft-sharepoint",
+  "versions": ["latest"],
+  "source": "local",
+  "notes": "Cerebras-built SharePoint MCP server, Runlayer proxy 5305ba03."
+}
+```
+
+and the blob lives at `local/net.cerebras.sec/microsoft-sharepoint/latest.json`, in the same `{server, _meta}` shape the upstream per-version endpoint returns. The published version still comes from `.server.version` inside the blob, so a `latest.json` carrying `1.0.0` lands at both `/versions/1.0.0` and `/versions/latest`, exactly as an upstream fetch would.
+
+Two things the build checks, because a hand-maintained blob can drift in ways an upstream fetch can't:
+
+- The file must exist — a missing `local/<name>/<version>.json` is a hard error, not a silently skipped server.
+- `.server.name` inside the blob must equal the allowlist key. Copilot enforces on the name in the blob, so a mismatch would publish an entry nobody can use.
+
+### Naming
+
+Local entries use the `net.cerebras.sec` namespace (reverse-DNS of `sec.cerebras.net`, where the Runlayer proxies live). Deliberately *not* `com.slack` or `com.microsoft` — we don't control those namespaces, and squatting them would collide if the vendor later publishes upstream for real. The trade-off is that the ID a Copilot user sees is Cerebras-flavoured rather than vendor-flavoured.
+
+### Remote URLs
+
+Local entries point at the Runlayer proxy (`https://runlayer.sec.cerebras.net/api/v1/proxy/<uuid>/mcp`), not the vendor's own endpoint, so Copilot traffic is subject to the same policy and audit as Claude Code's. Note this differs from the Atlassian entry, which comes from upstream and therefore points straight at `mcp.atlassian.com`.
+
+### `_meta`
+
+Upstream blobs carry `_meta["io.modelcontextprotocol.registry/official"]`. Local blobs use `_meta["net.cerebras.registry/curated"]` instead — asserting the official namespace for a server the official registry has never seen would be false. The schema treats `_meta` as free-form extension data, so both validate; if Copilot turns out to read the official key specifically, this is the thing to revisit.
+
+### Staged but not published
+
+`local/` currently also holds four validated blobs that are **not** in `allowlist.json`:
+
+| Server | Runlayer proxy |
+| --- | --- |
+| `net.cerebras.sec/microsoft-outlook-email` | `eeb341c6` |
+| `net.cerebras.sec/microsoft-outlook-calendar` | `c128228b` |
+| `net.cerebras.sec/microsoft-sharepoint` | `5305ba03` |
+| `net.cerebras.sec/microsoft-teams` | `27ff6109` |
+
+They're held back because the local-source path carries two assumptions that nothing has yet tested against Copilot itself:
+
+1. Copilot accepts a server entry whose `_meta` lacks the `io.modelcontextprotocol.registry/official` key.
+2. Copilot's MCP client can reach `runlayer.sec.cerebras.net` — an internal-only host — from wherever it runs. This is not a given: it connects from the client side, which for Remote-SSH users is the remote host, not the laptop. Every upstream entry in this registry points at a public hostname, so nothing here has exercised an internal one.
+
+`net.cerebras.sec/slack` is published first as the canary. Both assumptions are identical across all five, so if Slack installs and authenticates in Copilot, add the four entries above with `"source": "local"` and rebuild. If it fails, the fix applies to all five at once and nothing else has to be rolled back.
+
+Auth itself is the lower risk of the two: Runlayer's proxy presents the same OAuth flow as `mcp.atlassian.com/v2/mcp`, which is known to work in Copilot — `401` with `WWW-Authenticate: ... resource_metadata=`, `/.well-known/oauth-protected-resource`, an authorization server advertising a DCR `registration_endpoint`, and `authorization_code` with PKCE `S256`. The Atlassian `/v1/mcp` remote that Copilot *couldn't* sign into used the older method, which is why `latest` moved to v2.
 
 ## Finding a server's canonical ID
 
