@@ -100,14 +100,130 @@
           "isOfficialUpstream": false
         }
       }
+    },
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        "name": "net.cerebras.sec/microsoft-outlook-email",
+        "title": "Microsoft Outlook Email (Runlayer)",
+        "description": "Read, search, draft, and send Outlook mail via the Cerebras Runlayer proxy.",
+        "version": "1.0.0",
+        "websiteUrl": "https://runlayer.sec.cerebras.net/",
+        "remotes": [
+          {
+            "type": "streamable-http",
+            "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/eeb341c6-5f84-4da4-b99c-02041c76025e/mcp"
+          }
+        ]
+      },
+      "_meta": {
+        "net.cerebras.registry/curated": {
+          "status": "active",
+          "statusChangedAt": "2026-10-28T00:00:00Z",
+          "publishedAt": "2026-10-28T00:00:00Z",
+          "updatedAt": "2026-10-28T00:00:00Z",
+          "isLatest": true,
+          "source": "runlayer",
+          "runlayerServerId": "eeb341c6-5f84-4da4-b99c-02041c76025e",
+          "runlayerServerName": "Microsoft Outlook Email",
+          "isOfficialUpstream": false
+        }
+      }
+    },
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        "name": "net.cerebras.sec/microsoft-outlook-calendar",
+        "title": "Microsoft Outlook Calendar (Runlayer)",
+        "description": "Read and manage Outlook calendar events via the Cerebras Runlayer proxy.",
+        "version": "1.0.0",
+        "websiteUrl": "https://runlayer.sec.cerebras.net/",
+        "remotes": [
+          {
+            "type": "streamable-http",
+            "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/c128228b-b168-407b-b456-c41234e6a3fc/mcp"
+          }
+        ]
+      },
+      "_meta": {
+        "net.cerebras.registry/curated": {
+          "status": "active",
+          "statusChangedAt": "2026-10-28T00:00:00Z",
+          "publishedAt": "2026-10-28T00:00:00Z",
+          "updatedAt": "2026-10-28T00:00:00Z",
+          "isLatest": true,
+          "source": "runlayer",
+          "runlayerServerId": "c128228b-b168-407b-b456-c41234e6a3fc",
+          "runlayerServerName": "Microsoft Outlook Calendar",
+          "isOfficialUpstream": false
+        }
+      }
+    },
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        "name": "net.cerebras.sec/microsoft-sharepoint",
+        "title": "Microsoft SharePoint (Runlayer)",
+        "description": "Browse SharePoint sites, files, and lists via the Cerebras Runlayer proxy.",
+        "version": "1.0.0",
+        "websiteUrl": "https://runlayer.sec.cerebras.net/",
+        "remotes": [
+          {
+            "type": "streamable-http",
+            "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/5305ba03-faa2-4db8-b0f7-05006c0a3db2/mcp"
+          }
+        ]
+      },
+      "_meta": {
+        "net.cerebras.registry/curated": {
+          "status": "active",
+          "statusChangedAt": "2026-10-28T00:00:00Z",
+          "publishedAt": "2026-10-28T00:00:00Z",
+          "updatedAt": "2026-10-28T00:00:00Z",
+          "isLatest": true,
+          "source": "runlayer",
+          "runlayerServerId": "5305ba03-faa2-4db8-b0f7-05006c0a3db2",
+          "runlayerServerName": "Microsoft SharePoint",
+          "isOfficialUpstream": false
+        }
+      }
+    },
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        "name": "net.cerebras.sec/microsoft-teams",
+        "title": "Microsoft Teams (Runlayer)",
+        "description": "Read and post Microsoft Teams chats and channel messages through the Cerebras Runlayer proxy.",
+        "version": "1.0.0",
+        "websiteUrl": "https://runlayer.sec.cerebras.net/",
+        "remotes": [
+          {
+            "type": "streamable-http",
+            "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/27ff6109-b0d6-4540-8f2b-f9d0cf54b7d1/mcp"
+          }
+        ]
+      },
+      "_meta": {
+        "net.cerebras.registry/curated": {
+          "status": "active",
+          "statusChangedAt": "2026-10-28T00:00:00Z",
+          "publishedAt": "2026-10-28T00:00:00Z",
+          "updatedAt": "2026-10-28T00:00:00Z",
+          "isLatest": true,
+          "source": "runlayer",
+          "runlayerServerId": "27ff6109-b0d6-4540-8f2b-f9d0cf54b7d1",
+          "runlayerServerName": "Microsoft Teams",
+          "isOfficialUpstream": false
+        }
+      }
     }
   ],
   "metadata": {
-    "count": 3,
+    "count": 7,
     "nextCursor": null,
     "_curated": {
       "by": "Cerebras corpsec",
-      "generatedAt": "2026-10-27T22:33:23Z",
+      "generatedAt": "2026-10-28T13:08:51Z",
       "upstream": "https://registry.modelcontextprotocol.io"
     }
   }

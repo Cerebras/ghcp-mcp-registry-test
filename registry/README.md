@@ -88,13 +88,7 @@ Conventions for local entries:
 - **Remotes** point at the Runlayer proxy, not the vendor, so Copilot is under the same policy and audit as Claude Code. Upstream entries like Atlassian still point at the vendor directly.
 - **`_meta`** uses `net.cerebras.registry/curated` rather than `io.modelcontextprotocol.registry/official`, which would be a false claim. Both validate; revisit if Copilot turns out to read the official key.
 
-### Staged but not published
-
-`local/` holds four validated blobs absent from `allowlist.json`: `microsoft-outlook-email` (`eeb341c6`), `microsoft-outlook-calendar` (`c128228b`), `microsoft-sharepoint` (`5305ba03`), `microsoft-teams` (`27ff6109`).
-
-They're held back pending two assumptions nothing has tested against Copilot: that it accepts a non-official `_meta` namespace, and that it can reach `runlayer.sec.cerebras.net` — an internal-only host — from wherever its MCP client runs (for Remote-SSH users, the remote host, not the laptop).
-
-`net.cerebras.sec/slack` is the canary. Both assumptions are identical across all five, so if it works, add the four entries and rebuild.
+One client-side gotcha, hit when Copilot first tried the Slack entry: Runlayer enforces an OAuth redirect-URI allowlist, and an unrecognised URI stalls the flow at the authorization screen. The list is org-wide (Settings → General → OAuth redirect URIs), not per-connector, so it's a one-time fix per client, not per server.
 
 ## Finding a server's canonical ID
 
