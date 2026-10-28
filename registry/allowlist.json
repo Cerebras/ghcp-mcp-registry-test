@@ -1,5 +1,5 @@
 {
-  "$comment": "Source of truth for which MCP servers this registry exposes. Edit, then re-run scripts/build.sh. Entries default to source \"upstream\"; \"local\" publishes a blob from local/<name>/<version>.json instead. local/ also holds four staged Microsoft blobs not yet listed here — see README.md.",
+  "$comment": "Source of truth for which MCP servers this registry exposes. Edit, then re-run scripts/build.sh. Entries default to source \"upstream\"; \"local\" publishes a blob from local/<name>/<version>.json instead — see README.md.",
   "servers": [
     {
       "name": "com.atlassian/atlassian-mcp-server",
@@ -11,6 +11,30 @@
       "versions": ["latest"],
       "source": "local",
       "notes": "Slack official remote MCP server via Runlayer proxy a4838591. Not in the upstream registry, so the blob is hand-authored. Remote points at the proxy, not mcp.slack.com, to keep Copilot under Runlayer policy and audit."
+    },
+    {
+      "name": "net.cerebras.sec/microsoft-outlook-email",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Cerebras-built, Runlayer proxy eeb341c6. No upstream entry exists."
+    },
+    {
+      "name": "net.cerebras.sec/microsoft-outlook-calendar",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Cerebras-built, Runlayer proxy c128228b. No upstream entry exists."
+    },
+    {
+      "name": "net.cerebras.sec/microsoft-sharepoint",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Cerebras-built, Runlayer proxy 5305ba03. No upstream entry exists."
+    },
+    {
+      "name": "net.cerebras.sec/microsoft-teams",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Cerebras-built, Runlayer proxy 27ff6109. No upstream entry exists."
     }
   ]
 }
