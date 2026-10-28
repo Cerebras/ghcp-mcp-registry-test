@@ -62,10 +62,12 @@ List more than one version to keep an older release resolvable while a newer one
 
 ```json
 {
-  "name": "com.atlassian/atlassian-mcp-server",
+  "name": "com.example/foo-mcp",
   "versions": ["latest", "1.1.2"]
 }
 ```
+
+(No entry uses this today — every server in the allowlist is pinned to `latest` alone — but the build still supports it.)
 
 Every listed version is fetched and published at its own `/versions/<semver>` path, and all of them appear in `/v0.1/servers`. That matches how the upstream registry presents a server's history, so the `isLatest` flag inside each blob stays accurate and nothing has to be rewritten by hand.
 
@@ -88,7 +90,7 @@ Conventions for local entries:
 - **Remotes** point at the Runlayer proxy, not the vendor, so Copilot is under the same policy and audit as Claude Code. Upstream entries like Atlassian still point at the vendor directly.
 - **`_meta`** uses `net.cerebras.registry/curated` rather than `io.modelcontextprotocol.registry/official`, which would be a false claim. Both validate; revisit if Copilot turns out to read the official key.
 
-`net.cerebras.sec/atlassian` deliberately duplicates the upstream `com.atlassian/atlassian-mcp-server` entry rather than replacing it — same service, but routed through Runlayer. Copilot enforces on server ID, so dropping the upstream one would cut off anyone already installed under it. Retire it once people have migrated.
+`net.cerebras.sec/atlassian` replaced the direct `com.atlassian/atlassian-mcp-server` entry once it was validated in Copilot, so every entry now routes through Runlayer. Anyone still installed under the old ID has to reinstall — Copilot enforces on server ID and that one no longer resolves.
 
 Runlayer has four Atlassian servers and only one is fit for interactive use. `faad5da6` and `2ccdb53c` front `v1/mcp`, whose sign-in Copilot can't complete over Remote-SSH; `1bf125a8` and `2ccdb53c` inject a static API key, so every user shares one identity in the audit log. `f06f1af5` is `v2/mcp` with per-user OAuth.
 

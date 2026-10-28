@@ -3,76 +3,6 @@
     {
       "server": {
         "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-        "name": "com.atlassian/atlassian-mcp-server",
-        "description": "Connect to Atlassian Jira, Confluence, Loom, and more to search, create, and manage your work.",
-        "title": "Atlassian Rovo MCP Server",
-        "repository": {
-          "url": "https://github.com/atlassian/atlassian-mcp-server",
-          "source": "github"
-        },
-        "version": "2.0.0",
-        "websiteUrl": "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/",
-        "remotes": [
-          {
-            "type": "streamable-http",
-            "url": "https://mcp.atlassian.com/v2/mcp"
-          },
-          {
-            "type": "streamable-http",
-            "url": "https://mcp.atlassian.com/v1/mcp/authv2"
-          }
-        ]
-      },
-      "_meta": {
-        "io.modelcontextprotocol.registry/official": {
-          "status": "active",
-          "statusChangedAt": "2026-09-09T17:53:32.01107Z",
-          "publishedAt": "2026-09-09T17:53:32.01107Z",
-          "updatedAt": "2026-09-09T17:53:32.01107Z",
-          "isLatest": true
-        }
-      }
-    },
-    {
-      "server": {
-        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-        "name": "com.atlassian/atlassian-mcp-server",
-        "description": "Connect to Atlassian Jira, Confluence, and Compass to search, create, and manage your work.",
-        "title": "Atlassian Rovo MCP Server",
-        "repository": {
-          "url": "https://github.com/atlassian/atlassian-mcp-server",
-          "source": "github"
-        },
-        "version": "1.1.2",
-        "websiteUrl": "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/",
-        "remotes": [
-          {
-            "type": "streamable-http",
-            "url": "https://mcp.atlassian.com/v1/mcp"
-          },
-          {
-            "type": "sse",
-            "url": "https://mcp.atlassian.com/v1/sse"
-          },
-          {
-            "type": "streamable-http",
-            "url": "https://mcp.atlassian.com/v1/mcp/authv2"
-          }
-        ]
-      },
-      "_meta": {
-        "io.modelcontextprotocol.registry/official": {
-          "status": "active",
-          "statusChangedAt": "2026-06-23T01:10:04.636397Z",
-          "publishedAt": "2026-06-23T01:10:04.636397Z",
-          "updatedAt": "2026-06-23T01:10:04.636397Z",
-          "isLatest": false
-        }
-      }
-    },
-    {
-      "server": {
-        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
         "name": "net.cerebras.sec/atlassian",
         "title": "Atlassian (Runlayer)",
         "description": "Search and manage Jira and Confluence via the Cerebras Runlayer proxy.",
@@ -249,11 +179,11 @@
     }
   ],
   "metadata": {
-    "count": 8,
+    "count": 6,
     "nextCursor": null,
     "_curated": {
       "by": "Cerebras corpsec",
-      "generatedAt": "2026-10-28T13:33:42Z",
+      "generatedAt": "2026-10-28T23:11:56Z",
       "upstream": "https://registry.modelcontextprotocol.io"
     }
   }
