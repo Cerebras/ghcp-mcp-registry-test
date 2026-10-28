@@ -88,6 +88,10 @@ Conventions for local entries:
 - **Remotes** point at the Runlayer proxy, not the vendor, so Copilot is under the same policy and audit as Claude Code. Upstream entries like Atlassian still point at the vendor directly.
 - **`_meta`** uses `net.cerebras.registry/curated` rather than `io.modelcontextprotocol.registry/official`, which would be a false claim. Both validate; revisit if Copilot turns out to read the official key.
 
+`net.cerebras.sec/atlassian` deliberately duplicates the upstream `com.atlassian/atlassian-mcp-server` entry rather than replacing it — same service, but routed through Runlayer. Copilot enforces on server ID, so dropping the upstream one would cut off anyone already installed under it. Retire it once people have migrated.
+
+Runlayer has four Atlassian servers and only one is fit for interactive use. `faad5da6` and `2ccdb53c` front `v1/mcp`, whose sign-in Copilot can't complete over Remote-SSH; `1bf125a8` and `2ccdb53c` inject a static API key, so every user shares one identity in the audit log. `f06f1af5` is `v2/mcp` with per-user OAuth.
+
 One client-side gotcha, hit when Copilot first tried the Slack entry: Runlayer enforces an OAuth redirect-URI allowlist, and an unrecognised URI stalls the flow at the authorization screen. The list is org-wide (Settings → General → OAuth redirect URIs), not per-connector, so it's a one-time fix per client, not per server.
 
 ## Finding a server's canonical ID
