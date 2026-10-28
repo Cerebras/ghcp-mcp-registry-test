@@ -2,15 +2,10 @@
   "$comment": "Source of truth for which MCP servers this registry exposes. Edit, then re-run scripts/build.sh. Entries default to source \"upstream\"; \"local\" publishes a blob from local/<name>/<version>.json instead — see README.md.",
   "servers": [
     {
-      "name": "com.atlassian/atlassian-mcp-server",
-      "versions": ["latest", "1.1.2"],
-      "notes": "Atlassian Rovo remote MCP server (Jira, Confluence, Loom). `latest` is 2.0.0, whose default remote is https://mcp.atlassian.com/v2/mcp. 1.1.2 stays pinned so the v1 remotes remain resolvable through the v1→v2 transition; Atlassian begins serving v2 tools to v1 connections on 2027-03-01."
-    },
-    {
       "name": "net.cerebras.sec/atlassian",
       "versions": ["latest"],
       "source": "local",
-      "notes": "Same Atlassian service as the com.atlassian entry above, but routed through Runlayer proxy f06f1af5 so Copilot traffic is policed and audited. Published alongside rather than replacing it: Copilot enforces on server ID, so retiring com.atlassian/atlassian-mcp-server would cut off anyone already installed under that ID. Of Runlayer's four Atlassian servers this is the only one fit for interactive use — faad5da6 and 2ccdb53c front v1/mcp, whose sign-in Copilot can't complete over Remote-SSH, and 1bf125a8 and 2ccdb53c inject a static API key, so every user would share one identity in the audit log."
+      "notes": "Atlassian via Runlayer proxy f06f1af5, which fronts mcp.atlassian.com/v2/mcp. Replaced the direct com.atlassian/atlassian-mcp-server entry on 2026-10-29 once it was validated in Copilot. Of Runlayer's four Atlassian servers this is the only one fit for interactive use — faad5da6 and 2ccdb53c front v1/mcp, whose sign-in Copilot can't complete over Remote-SSH, and 1bf125a8 and 2ccdb53c inject a static API key, so every user would share one identity in the audit log."
     },
     {
       "name": "net.cerebras.sec/slack",
