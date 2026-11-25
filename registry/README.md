@@ -80,7 +80,7 @@ Keep in mind that Copilot's allowlist enforcement is name-based, not version-bas
 
 ## Servers with no upstream entry
 
-The Microsoft servers are Cerebras-built and Slack hasn't published its official remote server upstream, so `build.sh` has nothing to fetch. Those entries set `"source": "local"` and keep their blob at `local/<name>/<version>.json`, in the same `{server, _meta}` shape the upstream per-version endpoint returns.
+The Microsoft and Knowledge servers are Cerebras-built and Slack hasn't published its official remote server upstream, so `build.sh` has nothing to fetch. Those entries set `"source": "local"` and keep their blob at `local/<name>/<version>.json`, in the same `{server, _meta}` shape the upstream per-version endpoint returns.
 
 The build fails loudly if the file is missing, or if `.server.name` inside it disagrees with the allowlist key — Copilot enforces on the name in the blob.
 
@@ -93,6 +93,8 @@ Conventions for local entries:
 `net.cerebras.sec/atlassian` replaced the direct `com.atlassian/atlassian-mcp-server` entry once it was validated in Copilot, so every entry now routes through Runlayer. Anyone still installed under the old ID has to reinstall — Copilot enforces on server ID and that one no longer resolves.
 
 Runlayer has four Atlassian servers and only one is fit for interactive use. `faad5da6` and `2ccdb53c` front `v1/mcp`, whose sign-in Copilot can't complete over Remote-SSH; `1bf125a8` and `2ccdb53c` inject a static API key, so every user shares one identity in the audit log. `f06f1af5` is `v2/mcp` with per-user OAuth.
+
+`net.cerebras.sec/knowledge` (`aa2c0fd5`) fronts `https://knowledge.cerebras.aws/mcp`. Going through the proxy is not only a policy choice here — the origin's certificate is issued by `cerebras-internal-root`, which VS Code does not trust without `NODE_EXTRA_CA_CERTS`, whereas `runlayer.sec.cerebras.net` is publicly trusted. The connector answers an unauthenticated request with `401` plus `WWW-Authenticate: ... resource_metadata=…/.well-known/oauth-protected-resource/…`, i.e. the current MCP auth-discovery flow Copilot can complete — not the older v1-style sign-in that stalls over Remote-SSH.
 
 One client-side gotcha, hit when Copilot first tried the Slack entry: Runlayer enforces an OAuth redirect-URI allowlist, and an unrecognised URI stalls the flow at the authorization screen. The list is org-wide (Settings → General → OAuth redirect URIs), not per-connector, so it's a one-time fix per client, not per server.
 

@@ -36,6 +36,12 @@
       "versions": ["latest"],
       "source": "local",
       "notes": "Cerebras-built, Runlayer proxy 27ff6109. No upstream entry exists."
+    },
+    {
+      "name": "net.cerebras.sec/knowledge",
+      "versions": ["latest"],
+      "source": "local",
+      "notes": "Cerebras-built, Runlayer proxy aa2c0fd5."
     }
   ]
 }

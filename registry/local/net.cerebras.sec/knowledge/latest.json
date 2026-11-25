@@ -1,0 +1,30 @@
+{
+  "server": {
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+    "name": "net.cerebras.sec/knowledge",
+    "title": "Cerebras Knowledge (Runlayer)",
+    "description": "Search and chat over the Cerebras knowledge base — Slack, code, wiki and ClusterMon incidents — through the Cerebras Runlayer proxy.",
+    "version": "1.0.0",
+    "websiteUrl": "https://runlayer.sec.cerebras.net/",
+    "remotes": [
+      {
+        "type": "streamable-http",
+        "url": "https://runlayer.sec.cerebras.net/api/v1/proxy/aa2c0fd5-668b-4676-8794-45f1f87a1c4a/mcp"
+      }
+    ]
+  },
+  "_meta": {
+    "net.cerebras.registry/curated": {
+      "status": "active",
+      "statusChangedAt": "2026-11-25T00:00:00Z",
+      "publishedAt": "2026-11-25T00:00:00Z",
+      "updatedAt": "2026-11-25T00:00:00Z",
+      "isLatest": true,
+      "source": "runlayer",
+      "runlayerServerId": "aa2c0fd5-668b-4676-8794-45f1f87a1c4a",
+      "runlayerServerName": "Knowledge",
+      "upstreamUrl": "https://knowledge.cerebras.aws/mcp",
+      "isOfficialUpstream": false
+    }
+  }
+}
